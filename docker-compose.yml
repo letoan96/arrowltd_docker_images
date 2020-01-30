@@ -1,0 +1,70 @@
+version: '3'
+services:
+  p2play_backend:
+    image: p2play_backend
+    ports:
+      - "57362:57362"
+    volumes:
+      - ./github.com/p2play/p2play_backend:/go/src/github.com/p2play/p2play_backend
+    depends_on:
+      - postgresql
+      - vic_go
+    networks:
+    - arrowltd_net
+
+  vic_go:
+    image: vic_go
+    ports:
+      - "4007:4007"
+      - "4008:4008"
+    volumes:
+      - ./github.com/vic/vic_go:/go/src/github.com/vic/vic_go
+    depends_on:
+      - postgresql
+      # - p2play_chance
+    networks:
+    - arrowltd_net
+
+  p2play_chance:
+    image: p2play_chance
+    ports: 
+      - "17363:17363"
+    volumes:
+      - ./github.com/p2play/p2play_chance:/go/src/github.com/p2play/p2play_chance
+    depends_on:
+      - postgresql
+      - p2play_backend
+      - vic_go
+      - p2p-frontend
+    networks:
+      - arrowltd_net
+
+  p2p-frontend:
+    image: p2p-frontend
+    ports: 
+      - "8080:8080"
+    volumes:
+      - ./p2p-frontend:/usr/src/app
+    logging:
+      driver: none
+    networks:
+      - arrowltd_net      
+
+  postgresql:
+    image: postgres:12.1-alpine
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_USER: letoan
+      POSTGRES_PASSWORD: 
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    networks:
+      - arrowltd_net
+
+networks:
+  arrowltd_net:
+    driver: bridge
+    ipam:
+      driver: default

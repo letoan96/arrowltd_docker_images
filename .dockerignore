@@ -1,0 +1,4 @@
+**/.git
+postgres/*
+p2p-frontend/node_modules
+p2p-frontend-api/node_modules
